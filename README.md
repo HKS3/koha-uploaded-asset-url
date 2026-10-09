@@ -8,7 +8,7 @@ absolute URL in this form:
 <OPACBaseURL>/assets/<hashvalue>_<filename>
 ```
 
-Version 0.90.0; targets Koha 21.05 and later.
+Version 0.91.0; targets Koha 21.05 and later.
 
 ## Requirements
 
@@ -19,6 +19,10 @@ Version 0.90.0; targets Koha 21.05 and later.
 The plugin reads `OPACBaseURL` server-side with `C4::Context->preference` and
 injects the value safely into its page-specific JavaScript. It does not depend
 on `Koha.prefs` and does not require the `IntranetUserJS` system preference.
+
+The asset path is configurable through **Configure** in Koha's plugin manager.
+It defaults to `/assets`; enter another path snippet, such as `/uploaded-files`,
+to generate URLs below that path instead.
 
 The filename and hash are taken from the first and third table columns. Those
 positions are stable even when the staff interface is translated. The complete
@@ -34,19 +38,21 @@ spaces in uploaded filenames produce usable links.
    ```
 
 2. In the staff interface, open **Administration → Manage plugins** and upload
-   `dist/koha-uploaded-asset-url-0.90.0.kpz`.
+   `dist/koha-uploaded-asset-url-0.90.2.kpz`.
 3. Enable the plugin and reload **Tools → Uploads**.
-4. Select **Show asset URL** for an upload, then copy the displayed URL.
+4. Optionally select **Configure** for the plugin and set the asset path. It
+   defaults to `/assets`.
+5. Select **Show asset URL** for an upload, then copy the displayed URL.
 
-No plugin configuration or database tables are required. If `OPACBaseURL` is
-empty, the staff-interface origin is used as a fallback.
+The plugin creates no database tables. Its asset-path setting is stored through
+Koha's normal plugin-data mechanism.
 
 ## Build and tests
 
 ```sh
 prove -lr t
 perl scripts/build-kpz.pl
-unzip -t dist/koha-uploaded-asset-url-0.90.0.kpz
+unzip -t dist/koha-uploaded-asset-url-0.90.2.kpz
 ```
 
 The unit tests use stubs and do not require a Koha installation or database.

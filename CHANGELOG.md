@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.91.0 — 2026-10-09
+
+- Add a plugin configuration page for the asset path; `/assets` remains the default.
+
 ## 0.90.0 — 2026-10-09
 
 - Initial release.

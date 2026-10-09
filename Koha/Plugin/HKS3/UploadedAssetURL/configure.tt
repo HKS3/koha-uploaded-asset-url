@@ -1,0 +1,46 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha: Uploaded asset URL configuration</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body id="tools_uploaded_asset_url">
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs">
+    <a href="/cgi-bin/koha/mainpage.pl">Home</a>
+    &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a>
+    &rsaquo; Uploaded asset URL
+    &rsaquo; Configuration
+</div>
+
+<main class="container-fluid">
+    <h1>Uploaded asset URL configuration</h1>
+
+    <form method="post">
+        [% INCLUDE 'csrf-token.inc' %]
+        <input type="hidden" name="class" value="[% CLASS | html %]">
+        <input type="hidden" name="method" value="[% METHOD | html %]">
+        <input type="hidden" name="save" value="1">
+
+        <fieldset class="rows">
+            <legend>Asset path</legend>
+            <ol>
+                <li>
+                    <label for="asset_path">Path</label>
+                    <input id="asset_path" name="asset_path" type="text" class="form-control"
+                           value="[% asset_path | html %]" required>
+                    <span class="hint">
+                        Path below <code>OPACBaseURL</code> that serves uploaded assets.
+                        The default is <code>/assets</code>.
+                    </span>
+                </li>
+            </ol>
+        </fieldset>
+
+        <fieldset class="action">
+            <input type="submit" class="btn btn-primary" value="Save">
+        </fieldset>
+    </form>
+</main>
+
+[% INCLUDE 'intranet-bottom.inc' %]

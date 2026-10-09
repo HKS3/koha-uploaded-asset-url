@@ -7,7 +7,7 @@ use base qw(Koha::Plugins::Base);
 use C4::Context;
 use Mojo::JSON qw(encode_json);
 
-our $VERSION = '0.90.2';
+our $VERSION = '0.91.0';
 
 our $metadata = {
     name            => 'Uploaded asset URL',
@@ -28,6 +28,21 @@ sub new {
     return $class->SUPER::new($args);
 }
 
+sub configure {
+    my ($self) = @_;
+    my $cgi = $self->{cgi};
+
+    if ( defined $cgi->param('save') ) {
+        $self->store_data( { asset_path => $self->_asset_path( $cgi->param('asset_path') ) } );
+        $self->go_home;
+        return;
+    }
+
+    my $template = $self->get_template( { file => 'configure.tt' } );
+    $template->param( asset_path => $self->_asset_path );
+    $self->output_html( $template->output );
+}
+
 sub intranet_js {
     my ( $self, $args ) = @_;
 
@@ -39,13 +54,8 @@ sub intranet_js {
         && $args->{page} ne '/cgi-bin/koha/tools/upload.pl';
 
     my $opac_base_url = C4::Context->preference('OPACBaseURL') // q{};
-    my $opac_base_url_json = encode_json($opac_base_url);
-
-    # The value is emitted inside a script element. Keep it JSON-safe even if
-    # an administrator has put an unexpected character in the preference.
-    $opac_base_url_json =~ s/</\\u003C/g;
-    $opac_base_url_json =~ s/>/\\u003E/g;
-    $opac_base_url_json =~ s/&/\\u0026/g;
+    my $opac_base_url_json = _json_for_script($opac_base_url);
+    my $asset_path_json    = _json_for_script( $self->_asset_path );
 
     return <<"JAVASCRIPT";
 <script>
@@ -53,6 +63,7 @@ sub intranet_js {
     "use strict";
 
     const opacBaseUrl = $opac_base_url_json;
+    const assetPath = $asset_path_json;
 
     const addAssetUrlButtons = () => {
         if (window.location.pathname !== "/cgi-bin/koha/tools/upload.pl") return;
@@ -76,7 +87,7 @@ sub intranet_js {
             button.addEventListener("click", () => {
                 const filename = cells[0].textContent.trim();
                 const hashvalue = cells[2].textContent.trim();
-                const assetUrl = opacBaseUrl + "/assets/" + encodeURIComponent(hashvalue + "_" + filename);
+                const assetUrl = opacBaseUrl + assetPath + "/" + encodeURIComponent(hashvalue + "_" + filename);
 
                 // prompt() displays a selectable value, making it straightforward
                 // to copy into a configuration or an HTML link.
@@ -95,6 +106,30 @@ sub intranet_js {
 })();
 </script>
 JAVASCRIPT
+}
+
+sub _asset_path {
+    my ( $self, $asset_path ) = @_;
+    $asset_path = $self->retrieve_data('asset_path') unless defined $asset_path;
+    $asset_path //= q{};
+    $asset_path =~ s/\A\s+|\s+\z//g;
+    return '/assets' unless length $asset_path;
+
+    $asset_path = "/$asset_path" unless $asset_path =~ m{\A/};
+    $asset_path =~ s{/+\z}{} if length($asset_path) > 1;
+    return $asset_path;
+}
+
+sub _json_for_script {
+    my ($value) = @_;
+    my $json = encode_json($value);
+
+    # Values are emitted inside a script element. Keep JSON safe even if an
+    # administrator puts unexpected characters in a configuration value.
+    $json =~ s/</\\u003C/g;
+    $json =~ s/>/\\u003E/g;
+    $json =~ s/&/\\u0026/g;
+    return $json;
 }
 
 1;
