@@ -12,8 +12,9 @@ Version 0.91.0; targets Koha 21.05 and later.
 
 ## Requirements
 
-- Change <enable_plugins>0</enable_plugins> to <enable_plugins>1</enable_plugins> in your koha-conf.xml file
-  If you want to allow plugin upload in the admin interface you also have to disable plugins_restricted, that is, you have to set <plugins_restricted>0</plugins_restricted> `systemctl restart koha-common.service`
+- Enable plugins `<enable_plugins>1</enable_plugins>` in your koha-conf.xml file.  
+  Allow plugin upload in the admin interface. Set `<plugins_restricted>0</plugins_restricted>`  
+  Activate changes `systemctl restart koha-common.service`
 - `OPACBaseURL` set to the public base URL.
 - A web-server `/assets/` alias that serves Koha's permanent upload directory.
 
